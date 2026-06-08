@@ -1,6 +1,6 @@
 "use client";
 
-import { motion } from "framer-motion";
+import { motion, Variants } from "framer-motion";
 
 const skills = [
   {
@@ -38,24 +38,24 @@ const skills = [
     icon: "🚀",
     isTags: true,
     items: [
-      { name: "MERN Stack" },
-      { name: "REST APIs" },
-      { name: "Data Structures" },
-      { name: "Algorithms" },
-      { name: "Object Oriented Design" },
-      { name: "Database Design" },
-      { name: "Agile Development" },
+      { name: "MERN Stack", level: 0 },
+      { name: "REST APIs", level: 0 },
+      { name: "Data Structures", level: 0 },
+      { name: "Algorithms", level: 0 },
+      { name: "Object Oriented Design", level: 0 },
+      { name: "Database Design", level: 0 },
+      { name: "Agile Development", level: 0 },
     ],
   },
 ];
 
 export default function Skills() {
-  const containerVariants = {
+  const containerVariants: Variants = {
     hidden: { opacity: 0 },
     visible: { opacity: 1, transition: { staggerChildren: 0.15 } },
   };
 
-  const itemVariants = {
+  const itemVariants: Variants = {
     hidden: { opacity: 0, y: 30 },
     visible: { opacity: 1, y: 0, transition: { duration: 0.6, ease: [0.22, 1, 0.36, 1] } },
   };
