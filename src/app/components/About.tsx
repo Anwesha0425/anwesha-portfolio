@@ -26,7 +26,7 @@ const coursework = [
 ];
 
 const stats = [
-  { value: "3+", label: "Projects Shipped" },
+  { value: "10+", label: "Projects Built" },
   { value: "1717", label: "LeetCode Max Rating" },
   { value: "500+", label: "Contest Participants Led" },
   { value: "1000+", label: "Students Impacted" },
