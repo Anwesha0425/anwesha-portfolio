@@ -1,20 +1,6 @@
 "use client";
 
-import { useEffect, useRef, useState } from "react";
-
-function useInView(threshold = 0.15) {
-  const ref = useRef<HTMLDivElement>(null);
-  const [inView, setInView] = useState(false);
-  useEffect(() => {
-    const observer = new IntersectionObserver(
-      ([entry]) => { if (entry.isIntersecting) setInView(true); },
-      { threshold }
-    );
-    if (ref.current) observer.observe(ref.current);
-    return () => observer.disconnect();
-  }, [threshold]);
-  return { ref, inView };
-}
+import { motion } from "framer-motion";
 
 const coursework = [
   "Data Structures & Algorithms",
@@ -33,7 +19,15 @@ const stats = [
 ];
 
 export default function About() {
-  const { ref, inView } = useInView();
+  const containerVariants = {
+    hidden: { opacity: 0 },
+    visible: { opacity: 1, transition: { staggerChildren: 0.15 } },
+  };
+
+  const itemVariants = {
+    hidden: { opacity: 0, y: 30 },
+    visible: { opacity: 1, y: 0, transition: { duration: 0.6, ease: [0.22, 1, 0.36, 1] } },
+  };
 
   return (
     <section
@@ -45,8 +39,15 @@ export default function About() {
     >
       <div style={{ maxWidth: "1100px", margin: "0 auto" }}>
         {/* Section label */}
-        <div style={{ textAlign: "center", marginBottom: "4rem" }}>
-          <span
+        <motion.div
+          initial="hidden"
+          whileInView="visible"
+          viewport={{ once: true, margin: "-100px" }}
+          variants={containerVariants}
+          style={{ textAlign: "center", marginBottom: "4rem" }}
+        >
+          <motion.span
+            variants={itemVariants}
             style={{
               display: "inline-block",
               padding: "0.3rem 1rem",
@@ -62,8 +63,9 @@ export default function About() {
             }}
           >
             About Me
-          </span>
-          <h2
+          </motion.span>
+          <motion.h2
+            variants={itemVariants}
             style={{
               fontSize: "clamp(2rem, 4vw, 3rem)",
               fontWeight: 800,
@@ -82,25 +84,26 @@ export default function About() {
             >
               digital experiences
             </span>
-          </h2>
-        </div>
+          </motion.h2>
+        </motion.div>
 
-        <div
-          ref={ref}
+        <motion.div
+          initial="hidden"
+          whileInView="visible"
+          viewport={{ once: true, margin: "-100px" }}
+          variants={containerVariants}
           style={{
             display: "grid",
             gridTemplateColumns: "1fr 1fr",
             gap: "3rem",
             alignItems: "start",
-            opacity: inView ? 1 : 0,
-            transform: inView ? "translateY(0)" : "translateY(30px)",
-            transition: "all 0.7s ease",
           }}
           className="about-grid"
         >
           {/* Left: Text */}
           <div>
-            <p
+            <motion.p
+              variants={itemVariants}
               style={{
                 color: "#94a3b8",
                 lineHeight: 1.9,
@@ -115,8 +118,9 @@ export default function About() {
               </span>{" "}
               (Nov 2022 – Jun 2026). I love crafting seamless user experiences and 
               building robust backend systems.
-            </p>
-            <p
+            </motion.p>
+            <motion.p
+              variants={itemVariants}
               style={{
                 color: "#94a3b8",
                 lineHeight: 1.9,
@@ -127,10 +131,12 @@ export default function About() {
               From architecting real-time dashboards with Firebase to building e-commerce 
               platforms with personalized recommendation engines — I thrive where complex 
               problems meet elegant solutions.
-            </p>
+            </motion.p>
 
             {/* Education card */}
-            <div
+            <motion.div
+              variants={itemVariants}
+              whileHover={{ y: -5, borderColor: "rgba(124, 58, 237, 0.4)", boxShadow: "0 10px 30px rgba(124, 58, 237, 0.1)" }}
               style={{
                 background: "rgba(19, 19, 26, 0.8)",
                 border: "1px solid rgba(124, 58, 237, 0.2)",
@@ -138,6 +144,7 @@ export default function About() {
                 padding: "1.5rem",
                 marginBottom: "2rem",
                 backdropFilter: "blur(10px)",
+                transition: "border-color 0.3s ease, box-shadow 0.3s ease",
               }}
             >
               <div
@@ -204,66 +211,46 @@ export default function About() {
                   </span>
                 ))}
               </div>
-            </div>
+            </motion.div>
 
             {/* Contact info */}
-            <div style={{ display: "flex", flexDirection: "column", gap: "0.6rem" }}>
+            <motion.div variants={itemVariants} style={{ display: "flex", flexDirection: "column", gap: "0.6rem" }}>
               {[
-                {
-                  icon: "📍",
-                  text: "Brahmapur, Odisha, India",
-                },
-                {
-                  icon: "📞",
-                  text: "+91 7978963126",
-                  href: "tel:+917978963126",
-                },
-                {
-                  icon: "✉️",
-                  text: "anwesharanigouda@gmail.com",
-                  href: "mailto:anwesharanigouda@gmail.com",
-                },
+                { icon: "📍", text: "Brahmapur, Odisha, India" },
+                { icon: "📞", text: "+91 7978963126", href: "tel:+917978963126" },
+                { icon: "✉️", text: "anwesharanigouda@gmail.com", href: "mailto:anwesharanigouda@gmail.com" },
               ].map((item) => (
-                <div
-                  key={item.text}
-                  style={{
-                    display: "flex",
-                    alignItems: "center",
-                    gap: "0.75rem",
-                    color: "#94a3b8",
-                    fontSize: "0.9rem",
-                  }}
-                >
+                <div key={item.text} style={{ display: "flex", alignItems: "center", gap: "0.75rem", color: "#94a3b8", fontSize: "0.9rem" }}>
                   <span>{item.icon}</span>
                   {item.href ? (
-                    <a
+                    <motion.a
                       href={item.href}
                       style={{ color: "#94a3b8", textDecoration: "none" }}
-                      onMouseEnter={(e) => ((e.currentTarget as HTMLAnchorElement).style.color = "#a78bfa")}
-                      onMouseLeave={(e) => ((e.currentTarget as HTMLAnchorElement).style.color = "#94a3b8")}
+                      whileHover={{ color: "#a78bfa", x: 4 }}
                     >
                       {item.text}
-                    </a>
+                    </motion.a>
                   ) : (
                     <span>{item.text}</span>
                   )}
                 </div>
               ))}
-            </div>
+            </motion.div>
           </div>
 
           {/* Right: Stats */}
           <div style={{ display: "flex", flexDirection: "column", gap: "1.5rem" }}>
-            <div
-              style={{
-                display: "grid",
-                gridTemplateColumns: "1fr 1fr",
-                gap: "1rem",
-              }}
-            >
-              {stats.map((stat, i) => (
-                <div
+            <div style={{ display: "grid", gridTemplateColumns: "1fr 1fr", gap: "1rem" }}>
+              {stats.map((stat) => (
+                <motion.div
                   key={stat.label}
+                  variants={itemVariants}
+                  whileHover={{
+                    y: -5,
+                    borderColor: "rgba(124, 58, 237, 0.5)",
+                    boxShadow: "0 12px 30px rgba(124, 58, 237, 0.15)",
+                    scale: 1.02,
+                  }}
                   style={{
                     background: "rgba(19, 19, 26, 0.8)",
                     border: "1px solid rgba(124, 58, 237, 0.2)",
@@ -271,19 +258,7 @@ export default function About() {
                     padding: "1.5rem",
                     textAlign: "center",
                     backdropFilter: "blur(10px)",
-                    transition: "all 0.3s ease",
                     cursor: "default",
-                    animationDelay: `${i * 0.1}s`,
-                  }}
-                  onMouseEnter={(e) => {
-                    (e.currentTarget as HTMLDivElement).style.borderColor = "rgba(124, 58, 237, 0.5)";
-                    (e.currentTarget as HTMLDivElement).style.transform = "translateY(-4px)";
-                    (e.currentTarget as HTMLDivElement).style.boxShadow = "0 12px 30px rgba(124, 58, 237, 0.15)";
-                  }}
-                  onMouseLeave={(e) => {
-                    (e.currentTarget as HTMLDivElement).style.borderColor = "rgba(124, 58, 237, 0.2)";
-                    (e.currentTarget as HTMLDivElement).style.transform = "translateY(0)";
-                    (e.currentTarget as HTMLDivElement).style.boxShadow = "none";
                   }}
                 >
                   <div
@@ -302,18 +277,21 @@ export default function About() {
                   <div style={{ color: "#64748b", fontSize: "0.8rem", fontWeight: 500 }}>
                     {stat.label}
                   </div>
-                </div>
+                </motion.div>
               ))}
             </div>
 
             {/* Extracurricular card */}
-            <div
+            <motion.div
+              variants={itemVariants}
+              whileHover={{ y: -5, borderColor: "rgba(6, 182, 212, 0.4)", boxShadow: "0 10px 30px rgba(6, 182, 212, 0.1)" }}
               style={{
                 background: "rgba(19, 19, 26, 0.8)",
                 border: "1px solid rgba(6, 182, 212, 0.2)",
                 borderRadius: "1rem",
                 padding: "1.5rem",
                 backdropFilter: "blur(10px)",
+                transition: "border-color 0.3s ease, box-shadow 0.3s ease",
               }}
             >
               <h3
@@ -329,13 +307,7 @@ export default function About() {
               >
                 🏆 Leadership & Activities
               </h3>
-              <div
-                style={{
-                  display: "flex",
-                  flexDirection: "column",
-                  gap: "0.75rem",
-                }}
-              >
+              <div style={{ display: "flex", flexDirection: "column", gap: "0.75rem" }}>
                 <div
                   style={{
                     padding: "0.75rem",
@@ -355,9 +327,9 @@ export default function About() {
                   </div>
                 </div>
               </div>
-            </div>
+            </motion.div>
           </div>
-        </div>
+        </motion.div>
       </div>
 
       <style>{`

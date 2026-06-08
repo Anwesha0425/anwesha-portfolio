@@ -1,11 +1,15 @@
 import type { Metadata } from "next";
 import { Inter } from "next/font/google";
+import Navbar from "./components/Navbar";
+import CustomCursor from "./components/CustomCursor";
+import BackToTop from "./components/BackToTop";
 import "./globals.css";
 
 const inter = Inter({
   subsets: ["latin"],
   display: "swap",
   weight: ["400", "500", "600", "700", "800", "900"],
+  variable: "--font-inter",
 });
 
 export const metadata: Metadata = {
@@ -51,7 +55,13 @@ export default function RootLayout({
 }>) {
   return (
     <html lang="en">
-      <body className={`${inter.className} antialiased`}>{children}</body>
+      <body className={`${inter.variable} antialiased`}>
+        <CustomCursor />
+        <div className="gradient-bg" />
+        <Navbar />
+        <main>{children}</main>
+        <BackToTop />
+      </body>
     </html>
   );
 }

@@ -1,261 +1,288 @@
 "use client";
 
 import { useState, useEffect } from "react";
+import { motion, AnimatePresence } from "framer-motion";
 
-const navLinks = [
-  { label: "About", href: "#about" },
-  { label: "Projects", href: "#projects" },
-  { label: "Skills", href: "#skills" },
-  { label: "Achievements", href: "#achievements" },
-  { label: "Contact", href: "#contact" },
+const navItems = [
+  { name: "About", href: "#about" },
+  { name: "Projects", href: "#projects" },
+  { name: "Skills", href: "#skills" },
+  { name: "Achievements", href: "#achievements" },
 ];
 
 export default function Navbar() {
-  const [scrolled, setScrolled] = useState(false);
-  const [menuOpen, setMenuOpen] = useState(false);
   const [activeSection, setActiveSection] = useState("");
+  const [isScrolled, setIsScrolled] = useState(false);
+  const [isMobileMenuOpen, setIsMobileMenuOpen] = useState(false);
 
   useEffect(() => {
     const handleScroll = () => {
-      setScrolled(window.scrollY > 20);
+      setIsScrolled(window.scrollY > 50);
 
-      // Update active section
-      const sections = navLinks.map((l) => l.href.slice(1));
-      for (const id of sections.reverse()) {
-        const el = document.getElementById(id);
-        if (el && window.scrollY >= el.offsetTop - 120) {
-          setActiveSection(id);
-          break;
+      // Determine active section based on scroll position
+      const sections = navItems.map((item) => document.querySelector(item.href));
+      const scrollPosition = window.scrollY + 100; // Offset for navbar
+
+      let currentSection = "";
+      sections.forEach((section) => {
+        if (section instanceof HTMLElement) {
+          if (section.offsetTop <= scrollPosition && section.offsetTop + section.offsetHeight > scrollPosition) {
+            currentSection = section.id;
+          }
         }
+      });
+
+      // Special case for hero (top of page)
+      if (window.scrollY < 100) {
+        currentSection = "hero";
       }
+
+      setActiveSection(currentSection);
     };
-    window.addEventListener("scroll", handleScroll, { passive: true });
+
+    window.addEventListener("scroll", handleScroll);
+    handleScroll(); // Initial check
+
     return () => window.removeEventListener("scroll", handleScroll);
   }, []);
 
+  const handleNavClick = (e: React.MouseEvent<HTMLAnchorElement>, href: string) => {
+    e.preventDefault();
+    setIsMobileMenuOpen(false);
+    
+    const targetElement = document.querySelector(href);
+    if (targetElement) {
+      window.scrollTo({
+        top: targetElement.getBoundingClientRect().top + window.scrollY - 80,
+        behavior: "smooth",
+      });
+    }
+  };
+
   return (
-    <nav
-      style={{
-        position: "fixed",
-        top: 0,
-        left: 0,
-        right: 0,
-        zIndex: 1000,
-        transition: "all 0.3s ease",
-        background: scrolled
-          ? "rgba(10, 10, 15, 0.85)"
-          : "transparent",
-        backdropFilter: scrolled ? "blur(20px)" : "none",
-        WebkitBackdropFilter: scrolled ? "blur(20px)" : "none",
-        borderBottom: scrolled ? "1px solid rgba(124, 58, 237, 0.15)" : "none",
-        padding: "0 1.5rem",
-      }}
-    >
-      <div
+    <>
+      <motion.nav
+        initial={{ y: -100 }}
+        animate={{ y: 0 }}
+        transition={{ type: "spring", stiffness: 100, damping: 20 }}
         style={{
-          maxWidth: "1200px",
-          margin: "0 auto",
+          position: "fixed",
+          top: 0,
+          left: 0,
+          right: 0,
+          height: "80px",
           display: "flex",
           alignItems: "center",
-          justifyContent: "space-between",
-          height: "72px",
+          justifyContent: "center",
+          zIndex: 1000,
+          transition: "all 0.3s ease",
+          background: isScrolled ? "rgba(9, 9, 11, 0.8)" : "transparent",
+          backdropFilter: isScrolled ? "blur(12px)" : "none",
+          borderBottom: isScrolled ? "1px solid rgba(255, 255, 255, 0.05)" : "1px solid transparent",
         }}
       >
-        {/* Logo */}
-        <a
-          href="#"
-          style={{
-            fontSize: "1.4rem",
-            fontWeight: 800,
-            background: "linear-gradient(135deg, #7c3aed, #06b6d4)",
-            WebkitBackgroundClip: "text",
-            WebkitTextFillColor: "transparent",
-            backgroundClip: "text",
-            textDecoration: "none",
-            letterSpacing: "-0.02em",
-          }}
-        >
-          ARG
-        </a>
-
-        {/* Desktop Nav */}
-        <ul
-          style={{
-            display: "flex",
-            gap: "0.25rem",
-            listStyle: "none",
-            margin: 0,
-            padding: 0,
-          }}
-          className="desktop-nav"
-        >
-          {navLinks.map((link) => {
-            const isActive = activeSection === link.href.slice(1);
-            return (
-              <li key={link.href}>
-                <a
-                  href={link.href}
-                  style={{
-                    padding: "0.5rem 1rem",
-                    borderRadius: "9999px",
-                    fontSize: "0.9rem",
-                    fontWeight: 500,
-                    textDecoration: "none",
-                    color: isActive ? "#fff" : "rgba(226,232,240,0.7)",
-                    background: isActive
-                      ? "rgba(124, 58, 237, 0.25)"
-                      : "transparent",
-                    border: isActive
-                      ? "1px solid rgba(124, 58, 237, 0.4)"
-                      : "1px solid transparent",
-                    transition: "all 0.2s ease",
-                    display: "block",
-                  }}
-                  onMouseEnter={(e) => {
-                    if (!isActive) {
-                      (e.target as HTMLAnchorElement).style.color = "#fff";
-                      (e.target as HTMLAnchorElement).style.background =
-                        "rgba(124, 58, 237, 0.1)";
-                    }
-                  }}
-                  onMouseLeave={(e) => {
-                    if (!isActive) {
-                      (e.target as HTMLAnchorElement).style.color =
-                        "rgba(226,232,240,0.7)";
-                      (e.target as HTMLAnchorElement).style.background =
-                        "transparent";
-                    }
-                  }}
-                >
-                  {link.label}
-                </a>
-              </li>
-            );
-          })}
-        </ul>
-
-        {/* CTA Button */}
-        <a
-          href="#contact"
-          className="nav-cta"
-          style={{
-            padding: "0.5rem 1.25rem",
-            borderRadius: "9999px",
-            fontSize: "0.875rem",
-            fontWeight: 600,
-            textDecoration: "none",
-            background: "linear-gradient(135deg, #7c3aed, #06b6d4)",
-            color: "#fff",
-            transition: "all 0.2s ease",
-            boxShadow: "0 4px 15px rgba(124, 58, 237, 0.3)",
-          }}
-          onMouseEnter={(e) => {
-            (e.target as HTMLAnchorElement).style.transform = "translateY(-1px)";
-            (e.target as HTMLAnchorElement).style.boxShadow =
-              "0 6px 20px rgba(124, 58, 237, 0.5)";
-          }}
-          onMouseLeave={(e) => {
-            (e.target as HTMLAnchorElement).style.transform = "translateY(0)";
-            (e.target as HTMLAnchorElement).style.boxShadow =
-              "0 4px 15px rgba(124, 58, 237, 0.3)";
-          }}
-        >
-          Hire Me
-        </a>
-
-        {/* Mobile Hamburger */}
-        <button
-          className="hamburger"
-          onClick={() => setMenuOpen(!menuOpen)}
-          style={{
-            display: "none",
-            background: "none",
-            border: "none",
-            cursor: "pointer",
-            padding: "0.5rem",
-            color: "#e2e8f0",
-            flexDirection: "column",
-            gap: "5px",
-          }}
-          aria-label="Toggle menu"
-        >
-          <span
-            style={{
-              display: "block",
-              width: "22px",
-              height: "2px",
-              background: "#e2e8f0",
-              borderRadius: "2px",
-              transition: "all 0.3s ease",
-              transform: menuOpen ? "rotate(45deg) translateY(7px)" : "none",
-            }}
-          />
-          <span
-            style={{
-              display: "block",
-              width: "22px",
-              height: "2px",
-              background: "#e2e8f0",
-              borderRadius: "2px",
-              transition: "all 0.3s ease",
-              opacity: menuOpen ? 0 : 1,
-            }}
-          />
-          <span
-            style={{
-              display: "block",
-              width: "22px",
-              height: "2px",
-              background: "#e2e8f0",
-              borderRadius: "2px",
-              transition: "all 0.3s ease",
-              transform: menuOpen ? "rotate(-45deg) translateY(-7px)" : "none",
-            }}
-          />
-        </button>
-      </div>
-
-      {/* Mobile Menu */}
-      {menuOpen && (
         <div
           style={{
-            background: "rgba(10, 10, 15, 0.95)",
-            backdropFilter: "blur(20px)",
-            borderTop: "1px solid rgba(124, 58, 237, 0.15)",
-            padding: "1rem 1.5rem 1.5rem",
+            width: "100%",
+            maxWidth: "1200px",
+            padding: "0 1.5rem",
+            display: "flex",
+            alignItems: "center",
+            justifyContent: "space-between",
           }}
-          className="mobile-menu"
         >
-          {navLinks.map((link) => (
-            <a
-              key={link.href}
-              href={link.href}
-              onClick={() => setMenuOpen(false)}
+          {/* Logo */}
+          <motion.a
+            href="#hero"
+            onClick={(e) => handleNavClick(e, "#hero")}
+            whileHover={{ scale: 1.05 }}
+            style={{
+              fontSize: "1.25rem",
+              fontWeight: 800,
+              textDecoration: "none",
+              color: "#e2e8f0",
+              display: "flex",
+              alignItems: "center",
+              gap: "0.5rem",
+            }}
+          >
+            <div
               style={{
-                display: "block",
-                padding: "0.75rem 1rem",
-                color: "rgba(226,232,240,0.8)",
-                textDecoration: "none",
+                width: 32,
+                height: 32,
+                borderRadius: "8px",
+                background: "linear-gradient(135deg, #7c3aed, #06b6d4)",
+                display: "flex",
+                alignItems: "center",
+                justifyContent: "center",
+                color: "#fff",
                 fontSize: "1rem",
-                fontWeight: 500,
-                borderRadius: "0.5rem",
-                marginBottom: "0.25rem",
-                transition: "all 0.2s ease",
               }}
             >
-              {link.label}
-            </a>
-          ))}
+              A
+            </div>
+            Anwesha.
+          </motion.a>
+
+          {/* Desktop Nav */}
+          <div className="desktop-nav" style={{ display: "flex", alignItems: "center", gap: "2rem" }}>
+            <div style={{ display: "flex", gap: "1rem", background: "rgba(255,255,255,0.03)", padding: "0.4rem", borderRadius: "9999px", border: "1px solid rgba(255,255,255,0.05)" }}>
+              {navItems.map((item) => (
+                <a
+                  key={item.name}
+                  href={item.href}
+                  onClick={(e) => handleNavClick(e, item.href)}
+                  style={{
+                    padding: "0.5rem 1.25rem",
+                    color: activeSection === item.href.replace("#", "") ? "#fff" : "#94a3b8",
+                    textDecoration: "none",
+                    fontSize: "0.9rem",
+                    fontWeight: activeSection === item.href.replace("#", "") ? 600 : 500,
+                    borderRadius: "9999px",
+                    transition: "all 0.3s ease",
+                    position: "relative",
+                  }}
+                >
+                  {activeSection === item.href.replace("#", "") && (
+                    <motion.div
+                      layoutId="activeNavIndicator"
+                      style={{
+                        position: "absolute",
+                        inset: 0,
+                        background: "rgba(124, 58, 237, 0.2)",
+                        borderRadius: "9999px",
+                        border: "1px solid rgba(124, 58, 237, 0.5)",
+                        zIndex: -1,
+                      }}
+                      transition={{ type: "spring", stiffness: 300, damping: 30 }}
+                    />
+                  )}
+                  {item.name}
+                </a>
+              ))}
+            </div>
+
+            <motion.a
+              href="#contact"
+              onClick={(e) => handleNavClick(e, "#contact")}
+              whileHover={{ scale: 1.05 }}
+              whileTap={{ scale: 0.95 }}
+              style={{
+                padding: "0.6rem 1.5rem",
+                borderRadius: "9999px",
+                background: "rgba(124, 58, 237, 0.1)",
+                color: "#a78bfa",
+                textDecoration: "none",
+                fontSize: "0.9rem",
+                fontWeight: 600,
+                border: "1px solid rgba(124, 58, 237, 0.3)",
+                transition: "all 0.3s ease",
+              }}
+              onMouseEnter={(e) => {
+                (e.currentTarget as HTMLAnchorElement).style.background = "#7c3aed";
+                (e.currentTarget as HTMLAnchorElement).style.color = "#fff";
+              }}
+              onMouseLeave={(e) => {
+                (e.currentTarget as HTMLAnchorElement).style.background = "rgba(124, 58, 237, 0.1)";
+                (e.currentTarget as HTMLAnchorElement).style.color = "#a78bfa";
+              }}
+            >
+              Contact
+            </motion.a>
+          </div>
+
+          {/* Mobile Menu Button */}
+          <button
+            className="mobile-nav-btn"
+            onClick={() => setIsMobileMenuOpen(!isMobileMenuOpen)}
+            style={{
+              background: "none",
+              border: "none",
+              color: "#e2e8f0",
+              cursor: "pointer",
+              padding: "0.5rem",
+              display: "none",
+            }}
+          >
+            <svg width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2">
+              {isMobileMenuOpen ? (
+                <path d="M18 6L6 18M6 6l12 12" />
+              ) : (
+                <path d="M4 6h16M4 12h16M4 18h16" />
+              )}
+            </svg>
+          </button>
         </div>
-      )}
+      </motion.nav>
+
+      {/* Mobile Menu Dropdown */}
+      <AnimatePresence>
+        {isMobileMenuOpen && (
+          <motion.div
+            initial={{ opacity: 0, y: -20 }}
+            animate={{ opacity: 1, y: 0 }}
+            exit={{ opacity: 0, y: -20 }}
+            style={{
+              position: "fixed",
+              top: "80px",
+              left: 0,
+              right: 0,
+              background: "rgba(9, 9, 11, 0.95)",
+              backdropFilter: "blur(12px)",
+              borderBottom: "1px solid rgba(255, 255, 255, 0.05)",
+              padding: "1.5rem",
+              display: "flex",
+              flexDirection: "column",
+              gap: "1rem",
+              zIndex: 999,
+            }}
+          >
+            {navItems.map((item) => (
+              <a
+                key={item.name}
+                href={item.href}
+                onClick={(e) => handleNavClick(e, item.href)}
+                style={{
+                  padding: "1rem",
+                  color: activeSection === item.href.replace("#", "") ? "#fff" : "#94a3b8",
+                  textDecoration: "none",
+                  fontSize: "1.1rem",
+                  fontWeight: activeSection === item.href.replace("#", "") ? 600 : 500,
+                  borderRadius: "0.75rem",
+                  background: activeSection === item.href.replace("#", "") ? "rgba(124, 58, 237, 0.1)" : "transparent",
+                  border: activeSection === item.href.replace("#", "") ? "1px solid rgba(124, 58, 237, 0.3)" : "1px solid transparent",
+                }}
+              >
+                {item.name}
+              </a>
+            ))}
+            <a
+              href="#contact"
+              onClick={(e) => handleNavClick(e, "#contact")}
+              style={{
+                padding: "1rem",
+                background: "linear-gradient(135deg, #7c3aed, #06b6d4)",
+                color: "#fff",
+                textDecoration: "none",
+                fontSize: "1.1rem",
+                fontWeight: 600,
+                borderRadius: "0.75rem",
+                textAlign: "center",
+                marginTop: "0.5rem",
+              }}
+            >
+              Contact Me
+            </a>
+          </motion.div>
+        )}
+      </AnimatePresence>
 
       <style>{`
         @media (max-width: 768px) {
           .desktop-nav { display: none !important; }
-          .nav-cta { display: none !important; }
-          .hamburger { display: flex !important; }
+          .mobile-nav-btn { display: block !important; }
         }
       `}</style>
-    </nav>
+    </>
   );
 }

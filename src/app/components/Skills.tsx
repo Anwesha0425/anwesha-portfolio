@@ -1,133 +1,64 @@
 "use client";
 
-import { useEffect, useRef, useState } from "react";
+import { motion } from "framer-motion";
 
-function useInView(threshold = 0.1) {
-  const ref = useRef<HTMLDivElement>(null);
-  const [inView, setInView] = useState(false);
-  useEffect(() => {
-    const observer = new IntersectionObserver(
-      ([entry]) => { if (entry.isIntersecting) setInView(true); },
-      { threshold }
-    );
-    if (ref.current) observer.observe(ref.current);
-    return () => observer.disconnect();
-  }, [threshold]);
-  return { ref, inView };
-}
-
-const skillGroups = [
+const skills = [
   {
     category: "Languages",
     icon: "💻",
-    color: "#7c3aed",
-    colorLight: "rgba(124, 58, 237, 0.1)",
-    colorBorder: "rgba(124, 58, 237, 0.25)",
-    skills: [
+    items: [
       { name: "JavaScript", level: 90 },
       { name: "TypeScript", level: 80 },
       { name: "C/C++", level: 75 },
       { name: "SQL", level: 70 },
-      { name: "HTML/CSS", level: 95 },
     ],
   },
   {
     category: "Frameworks & Libraries",
     icon: "⚛️",
-    color: "#06b6d4",
-    colorLight: "rgba(6, 182, 212, 0.1)",
-    colorBorder: "rgba(6, 182, 212, 0.25)",
-    skills: [
+    items: [
       { name: "React.js", level: 90 },
       { name: "Next.js", level: 82 },
       { name: "Node.js", level: 80 },
       { name: "Express.js", level: 78 },
-      { name: "Tailwind CSS", level: 88 },
-      { name: "REST APIs", level: 85 },
     ],
   },
   {
-    category: "Databases",
-    icon: "🗄️",
-    color: "#f59e0b",
-    colorLight: "rgba(245, 158, 11, 0.1)",
-    colorBorder: "rgba(245, 158, 11, 0.25)",
-    skills: [
-      { name: "MongoDB", level: 80 },
-      { name: "MySQL", level: 72 },
-      { name: "Firebase", level: 82 },
-    ],
-  },
-  {
-    category: "Developer Tools",
+    category: "Tools & Databases",
     icon: "🛠️",
-    color: "#10b981",
-    colorLight: "rgba(16, 185, 129, 0.1)",
-    colorBorder: "rgba(16, 185, 129, 0.25)",
-    skills: [
+    items: [
+      { name: "MongoDB", level: 85 },
       { name: "Git & GitHub", level: 88 },
-      { name: "VS Code", level: 95 },
-      { name: "Vercel", level: 85 },
-      { name: "Netlify", level: 80 },
-      { name: "Bootstrap", level: 78 },
+      { name: "Firebase", level: 80 },
+      { name: "Figma", level: 70 },
+    ],
+  },
+  {
+    category: "Core Stack",
+    icon: "🚀",
+    isTags: true,
+    items: [
+      { name: "MERN Stack" },
+      { name: "REST APIs" },
+      { name: "Data Structures" },
+      { name: "Algorithms" },
+      { name: "Object Oriented Design" },
+      { name: "Database Design" },
+      { name: "Agile Development" },
     ],
   },
 ];
 
-function SkillBar({ name, level, color, delay }: { name: string; level: number; color: string; delay: number }) {
-  const [animated, setAnimated] = useState(false);
-  const ref = useRef<HTMLDivElement>(null);
-
-  useEffect(() => {
-    const observer = new IntersectionObserver(
-      ([entry]) => {
-        if (entry.isIntersecting) {
-          setTimeout(() => setAnimated(true), delay);
-        }
-      },
-      { threshold: 0.5 }
-    );
-    if (ref.current) observer.observe(ref.current);
-    return () => observer.disconnect();
-  }, [delay]);
-
-  return (
-    <div ref={ref}>
-      <div
-        style={{
-          display: "flex",
-          justifyContent: "space-between",
-          marginBottom: "0.4rem",
-        }}
-      >
-        <span style={{ color: "#cbd5e1", fontSize: "0.88rem", fontWeight: 500 }}>{name}</span>
-        <span style={{ color: "#64748b", fontSize: "0.8rem" }}>{level}%</span>
-      </div>
-      <div
-        style={{
-          height: "6px",
-          background: "rgba(255,255,255,0.06)",
-          borderRadius: "9999px",
-          overflow: "hidden",
-        }}
-      >
-        <div
-          style={{
-            height: "100%",
-            borderRadius: "9999px",
-            background: `linear-gradient(90deg, ${color}, ${color}99)`,
-            width: animated ? `${level}%` : "0%",
-            transition: "width 1s cubic-bezier(0.4, 0, 0.2, 1)",
-            boxShadow: `0 0 8px ${color}66`,
-          }}
-        />
-      </div>
-    </div>
-  );
-}
-
 export default function Skills() {
-  const { ref, inView } = useInView();
+  const containerVariants = {
+    hidden: { opacity: 0 },
+    visible: { opacity: 1, transition: { staggerChildren: 0.15 } },
+  };
+
+  const itemVariants = {
+    hidden: { opacity: 0, y: 30 },
+    visible: { opacity: 1, y: 0, transition: { duration: 0.6, ease: [0.22, 1, 0.36, 1] } },
+  };
 
   return (
     <section
@@ -135,13 +66,19 @@ export default function Skills() {
       style={{
         padding: "7rem 1.5rem",
         position: "relative",
-        background: "linear-gradient(180deg, transparent, rgba(124,58,237,0.03) 50%, transparent)",
       }}
     >
       <div style={{ maxWidth: "1100px", margin: "0 auto" }}>
         {/* Section header */}
-        <div style={{ textAlign: "center", marginBottom: "4rem" }}>
-          <span
+        <motion.div
+          initial="hidden"
+          whileInView="visible"
+          viewport={{ once: true, margin: "-100px" }}
+          variants={containerVariants}
+          style={{ textAlign: "center", marginBottom: "4rem" }}
+        >
+          <motion.span
+            variants={itemVariants}
             style={{
               display: "inline-block",
               padding: "0.3rem 1rem",
@@ -157,8 +94,9 @@ export default function Skills() {
             }}
           >
             Skills
-          </span>
-          <h2
+          </motion.span>
+          <motion.h2
+            variants={itemVariants}
             style={{
               fontSize: "clamp(2rem, 4vw, 3rem)",
               fontWeight: 800,
@@ -178,167 +116,138 @@ export default function Skills() {
             >
               Arsenal
             </span>
-          </h2>
-          <p style={{ color: "#64748b", fontSize: "1rem" }}>
+          </motion.h2>
+          <motion.p variants={itemVariants} style={{ color: "#64748b", fontSize: "1rem" }}>
             Technologies I use to bring ideas to life
-          </p>
-        </div>
+          </motion.p>
+        </motion.div>
 
-        {/* Skill cards grid */}
-        <div
-          ref={ref}
+        {/* Skills grid */}
+        <motion.div
+          initial="hidden"
+          whileInView="visible"
+          viewport={{ once: true, margin: "-100px" }}
+          variants={containerVariants}
           style={{
             display: "grid",
-            gridTemplateColumns: "repeat(2, 1fr)",
-            gap: "1.5rem",
+            gridTemplateColumns: "repeat(auto-fit, minmax(320px, 1fr))",
+            gap: "2rem",
           }}
-          className="skills-grid"
         >
-          {skillGroups.map((group, idx) => (
-            <div
-              key={group.category}
+          {skills.map((category, idx) => (
+            <motion.div
+              key={category.category}
+              variants={itemVariants}
+              whileHover={{ y: -5, borderColor: "rgba(124, 58, 237, 0.4)", boxShadow: "0 10px 30px rgba(124, 58, 237, 0.1)" }}
               style={{
-                background: "rgba(19, 19, 26, 0.85)",
-                border: `1px solid ${group.colorBorder}`,
+                background: "rgba(19, 19, 26, 0.8)",
+                border: "1px solid rgba(124, 58, 237, 0.15)",
                 borderRadius: "1.25rem",
-                padding: "1.75rem",
+                padding: "2rem",
                 backdropFilter: "blur(10px)",
-                opacity: inView ? 1 : 0,
-                transform: inView ? "translateY(0)" : "translateY(20px)",
-                transition: `all 0.5s ease ${idx * 0.1}s`,
+                transition: "border-color 0.3s ease, box-shadow 0.3s ease",
               }}
             >
-              {/* Card header */}
-              <div style={{ display: "flex", alignItems: "center", gap: "0.75rem", marginBottom: "1.5rem" }}>
+              <div
+                style={{
+                  display: "flex",
+                  alignItems: "center",
+                  gap: "1rem",
+                  marginBottom: "2rem",
+                }}
+              >
                 <div
                   style={{
-                    width: "44px",
-                    height: "44px",
-                    borderRadius: "0.75rem",
-                    background: group.colorLight,
-                    border: `1px solid ${group.colorBorder}`,
+                    width: "48px",
+                    height: "48px",
+                    borderRadius: "1rem",
+                    background: "rgba(124, 58, 237, 0.1)",
+                    border: "1px solid rgba(124, 58, 237, 0.2)",
                     display: "flex",
                     alignItems: "center",
                     justifyContent: "center",
-                    fontSize: "1.3rem",
+                    fontSize: "1.5rem",
                   }}
                 >
-                  {group.icon}
+                  {category.icon}
                 </div>
-                <h3
-                  style={{
-                    color: "#e2e8f0",
-                    fontWeight: 700,
-                    fontSize: "1rem",
-                    letterSpacing: "-0.01em",
-                  }}
-                >
-                  {group.category}
+                <h3 style={{ fontSize: "1.2rem", fontWeight: 700, color: "#e2e8f0" }}>
+                  {category.category}
                 </h3>
               </div>
 
-              {/* Skill bars */}
-              <div style={{ display: "flex", flexDirection: "column", gap: "1rem" }}>
-                {group.skills.map((skill, i) => (
-                  <SkillBar
-                    key={skill.name}
-                    name={skill.name}
-                    level={skill.level}
-                    color={group.color}
-                    delay={i * 100 + idx * 150}
-                  />
-                ))}
-              </div>
-            </div>
+              {category.isTags ? (
+                <div style={{ display: "flex", flexWrap: "wrap", gap: "0.6rem" }}>
+                  {category.items.map((item, i) => (
+                    <motion.span
+                      key={item.name}
+                      initial={{ opacity: 0, scale: 0.8 }}
+                      whileInView={{ opacity: 1, scale: 1 }}
+                      viewport={{ once: true }}
+                      transition={{ delay: 0.2 + i * 0.05, duration: 0.4 }}
+                      whileHover={{ scale: 1.05, backgroundColor: "rgba(124, 58, 237, 0.2)" }}
+                      style={{
+                        padding: "0.4rem 0.85rem",
+                        borderRadius: "0.5rem",
+                        background: "rgba(124, 58, 237, 0.1)",
+                        border: "1px solid rgba(124, 58, 237, 0.2)",
+                        color: "#c4b5fd",
+                        fontSize: "0.85rem",
+                        fontWeight: 500,
+                      }}
+                    >
+                      {item.name}
+                    </motion.span>
+                  ))}
+                </div>
+              ) : (
+                <div style={{ display: "flex", flexDirection: "column", gap: "1.25rem" }}>
+                  {category.items.map((item, i) => (
+                    <div key={item.name}>
+                      <div
+                        style={{
+                          display: "flex",
+                          justifyContent: "space-between",
+                          marginBottom: "0.4rem",
+                          fontSize: "0.9rem",
+                        }}
+                      >
+                        <span style={{ color: "#e2e8f0", fontWeight: 500 }}>{item.name}</span>
+                        <span style={{ color: "#64748b" }}>{item.level}%</span>
+                      </div>
+                      <div
+                        style={{
+                          height: "6px",
+                          background: "rgba(255, 255, 255, 0.05)",
+                          borderRadius: "9999px",
+                          overflow: "hidden",
+                        }}
+                      >
+                        <motion.div
+                          initial={{ width: 0 }}
+                          whileInView={{ width: `${item.level}%` }}
+                          viewport={{ once: true, margin: "-50px" }}
+                          transition={{ duration: 1, delay: 0.2 + i * 0.1, ease: "easeOut" }}
+                          style={{
+                            height: "100%",
+                            background: idx % 2 === 0
+                              ? "linear-gradient(90deg, #7c3aed, #a78bfa)"
+                              : "linear-gradient(90deg, #06b6d4, #22d3ee)",
+                            borderRadius: "9999px",
+                            boxShadow: idx % 2 === 0
+                              ? "0 0 10px rgba(124, 58, 237, 0.5)"
+                              : "0 0 10px rgba(6, 182, 212, 0.5)",
+                          }}
+                        />
+                      </div>
+                    </div>
+                  ))}
+                </div>
+              )}
+            </motion.div>
           ))}
-        </div>
-
-        {/* Tech stack icon row */}
-        <div
-          style={{
-            marginTop: "3rem",
-            padding: "2rem",
-            background: "rgba(19, 19, 26, 0.6)",
-            border: "1px solid rgba(124, 58, 237, 0.15)",
-            borderRadius: "1.25rem",
-            backdropFilter: "blur(10px)",
-          }}
-        >
-          <p
-            style={{
-              textAlign: "center",
-              color: "#475569",
-              fontSize: "0.8rem",
-              fontWeight: 600,
-              letterSpacing: "0.12em",
-              textTransform: "uppercase",
-              marginBottom: "1.5rem",
-            }}
-          >
-            Core Stack
-          </p>
-          <div
-            style={{
-              display: "flex",
-              flexWrap: "wrap",
-              gap: "0.75rem",
-              justifyContent: "center",
-            }}
-          >
-            {[
-              { name: "React", emoji: "⚛️" },
-              { name: "Next.js", emoji: "▲" },
-              { name: "TypeScript", emoji: "🔷" },
-              { name: "Node.js", emoji: "🟢" },
-              { name: "MongoDB", emoji: "🍃" },
-              { name: "Firebase", emoji: "🔥" },
-              { name: "Tailwind", emoji: "💨" },
-              { name: "Git", emoji: "🌿" },
-              { name: "Vercel", emoji: "▲" },
-              { name: "REST API", emoji: "🔗" },
-            ].map((tech) => (
-              <div
-                key={tech.name}
-                style={{
-                  padding: "0.5rem 1rem",
-                  borderRadius: "9999px",
-                  background: "rgba(124, 58, 237, 0.07)",
-                  border: "1px solid rgba(124, 58, 237, 0.15)",
-                  color: "#94a3b8",
-                  fontSize: "0.85rem",
-                  fontWeight: 500,
-                  display: "flex",
-                  alignItems: "center",
-                  gap: "0.4rem",
-                  transition: "all 0.2s ease",
-                  cursor: "default",
-                }}
-                onMouseEnter={(e) => {
-                  (e.currentTarget as HTMLDivElement).style.background = "rgba(124, 58, 237, 0.15)";
-                  (e.currentTarget as HTMLDivElement).style.color = "#c4b5fd";
-                  (e.currentTarget as HTMLDivElement).style.borderColor = "rgba(124, 58, 237, 0.35)";
-                }}
-                onMouseLeave={(e) => {
-                  (e.currentTarget as HTMLDivElement).style.background = "rgba(124, 58, 237, 0.07)";
-                  (e.currentTarget as HTMLDivElement).style.color = "#94a3b8";
-                  (e.currentTarget as HTMLDivElement).style.borderColor = "rgba(124, 58, 237, 0.15)";
-                }}
-              >
-                <span>{tech.emoji}</span>
-                <span>{tech.name}</span>
-              </div>
-            ))}
-          </div>
-        </div>
+        </motion.div>
       </div>
-
-      <style>{`
-        @media (max-width: 768px) {
-          .skills-grid {
-            grid-template-columns: 1fr !important;
-          }
-        }
-      `}</style>
     </section>
   );
 }
